@@ -62,7 +62,7 @@ public class Spells : MonoBehaviour
     {
         spells.Add(new Spell(0, "Fireball", "Shoot out a fireball, hopefully you wont cause a forest fire...", "0000", false));
         spells.Add(new Spell(1, "Deflect", "Whatever it is that they threw at you, it's now deflected!", "0001", false));
-        spells.Add(new Spell(2, "Stun", "Your target is now stunned, they cannot move or act, they are at your mercy.", "0010", false));
+        spells.Add(new Spell(2, "Stun", "Cast a blinding light in an area, anyone inside is now briefly stunned, they are at your mercy.", "0010", false));
         spells.Add(new Spell(3, "Heal", "Cover some of your wounds.", "0100", false));
     }
 

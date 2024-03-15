@@ -6,23 +6,29 @@ using TMPro;
 
 public class InventoryManager : MonoBehaviour
 {
-    [SerializeField]
+    [SerializeField] //Default slots
     private List<Slot> baseSlots = new List<Slot>();
-    [SerializeField]
+    [SerializeField] //Slots objects
     private List<NewSlot> activeSlots = new List<NewSlot>();
-    [SerializeField]
+    [SerializeField] //List of items that exist
     private List<Item> existingItems = new List<Item>();
 
+    //Amount of slots that exist
     public int inventorySlotAmount = 32;
 
+    //Background image of each slot
     public Sprite slotBackground;
 
+    //Slot prefab
     public GameObject slotPrefab;
+
+    //Canvas "inventory" content
     public GameObject content;
 
+    //Ease of access
     public static InventoryManager instance;
 
-    [System.Serializable]
+    [System.Serializable] //What is a slot?
     public class Slot
     {
         [SerializeField]
@@ -67,7 +73,7 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
-    [System.Serializable]
+    [System.Serializable] //What is an item?
     public class Item
     {
         [SerializeField]
@@ -114,14 +120,17 @@ public class InventoryManager : MonoBehaviour
 
     void Awake()
     {
+        //Instantiation
         instance = this;
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        //Get the content in the canvas for the slots to be instantiated into
         content = GameObject.FindGameObjectWithTag("Content");
 
+        //Create all the empty slots
         for (int i = 0; i < inventorySlotAmount; i++)
         {
             //Create an empty slot as base
@@ -147,9 +156,11 @@ public class InventoryManager : MonoBehaviour
             activeSlots.Add(slotComp);
         }
 
+        //Populate all of the items that exist onto a list
         PopulateItems();
     }
 
+    //Item population
     public void PopulateItems()
     {
         existingItems.Add(new Item(0, null, "Leather hat.", "A cool hat your dad gave you as a kid."));
@@ -162,6 +173,7 @@ public class InventoryManager : MonoBehaviour
         existingItems.Add(new Item(7, null, "Broken arrow.", "A broken arrow. A shame you can't use it to play with that bow, its very cool though!"));
     }
 
+    //Add specific item (ONCE)
     public void AddItem(Item item)
     {
         for (int i = 0; i < activeSlots.Count; i++)
@@ -170,6 +182,27 @@ public class InventoryManager : MonoBehaviour
             {
                 activeSlots[i].itemImage = item.Image;
                 activeSlots[i].item = item;
+
+                break;
+            }
+        }
+    }
+
+    //Testing purposes (adding random items ONCE)
+    public void AddRandomItem()
+    {
+        for (int i = 0; i < activeSlots.Count; i++)
+        {
+            if (activeSlots[i].itemImage == null && activeSlots[i].item == null)
+            {
+                int rand = Random.Range(0, existingItems.Count);
+
+                activeSlots[i].itemImage = existingItems[rand].Image;
+                activeSlots[i].item = existingItems[rand];
+
+                print("Added item: " + existingItems[rand].Id + " at slot number: " + activeSlots[i].id + " named: " + existingItems[rand].Name);
+
+                break;
             }
         }
     }
