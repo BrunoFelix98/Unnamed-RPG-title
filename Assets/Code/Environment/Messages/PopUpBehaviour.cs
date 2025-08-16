@@ -8,10 +8,21 @@ public class PopUpBehaviour : MonoBehaviour
     public PopUpMessage popUp;
     public TextMeshProUGUI textBox;
 
-    public void PopUp(Transform transform)
+    private void Start()
     {
-        GameObject newPopUp = Instantiate(GameData.instance.popUpPrefab, transform.position, Quaternion.identity);
-        System.Threading.Thread.Sleep(2000); //Wait for 2 seconds
-        Destroy(newPopUp);
+        textBox.text = popUp.Text;
+    }
+
+    public void PopUp()
+    {
+        textBox.text = popUp.Text;
+
+        StartCoroutine(Wait());
+    }
+
+    IEnumerator Wait()
+    {
+        yield return new WaitForSeconds(2);
+        this.gameObject.SetActive(false);
     }
 }

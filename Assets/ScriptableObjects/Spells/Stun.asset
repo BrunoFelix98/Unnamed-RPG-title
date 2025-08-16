@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 021ba52a16c237e459448b31aff5ea5c, type: 3}
   m_Name: Stun
   m_EditorClassIdentifier: 
-  name: Stun
+  spellName: Stun
   description: Cast a blinding light in an area, anyone inside is now briefly stunned,
     they are at your mercy.
-  unlocked: 0
   code: 0010
+  damage: 0

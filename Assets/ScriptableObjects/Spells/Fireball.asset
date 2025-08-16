@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 021ba52a16c237e459448b31aff5ea5c, type: 3}
   m_Name: Fireball
   m_EditorClassIdentifier: 
-  name: Fireball
+  spellName: Fireball
   description: Shoot out a fireball, hopefully you wont cause a forest fire...
-  unlocked: 0
   code: 0000
+  damage: 0

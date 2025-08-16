@@ -1,5 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,6 +23,9 @@ public class GameData : MonoBehaviour
 
     //Current inventory items
     public List<Item> inventoryItems = new List<Item>();
+
+    //Current unlocked spells
+    public List<Spell> playerSpells;
 
     //Default values
     public List<Slot> slots = new List<Slot>();
@@ -71,6 +77,7 @@ public class GameData : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player");
         targets = GameObject.FindGameObjectsWithTag("Enemy");
+        playerSpells = player.GetComponent<PlayerData>().UnlockedSpells;
     }
 
     // Update is called once per frame
@@ -93,45 +100,99 @@ public class GameData : MonoBehaviour
             }
         }
 
+        //Unlock Fireball Test
+        if (Input.GetKeyDown("u"))
+        {
+            UnlockSpell(0);
+        }
+
+        //Unlock Fireball Test
+        if (Input.GetKeyDown("l"))
+        {
+            UnlockSpell(3);
+        }
+
+        //Trigger a spell
         if (currentCode.ToCharArray().Length.Equals(4))
         {
             TriggerSpell(currentCode);
         }
 
-
+        //Overflow Failsafe
+        if (currentCode.ToCharArray().Length > 4)
+        {
+            currentCode = ""; //Reset spell code
+        }
     }
 
     //Trigger a spell
     public void TriggerSpell(string spellCode)
     {
-        for (int i = 0; i < allSpells.Length; i++)
+        //If the player does not have any spells unlocked, IE at the start of the game, they shouldn't be able to cast anything (This code will likely never run)
+        if (playerSpells.Count < 1)
         {
-            if (allSpells[i].Code.Equals(spellCode))
+            //UI representation
+            popUpPrefabs[13].SetActive(true);
+            popUpPrefabs[13].GetComponent<PopUpBehaviour>().PopUp(); //You dont know any spells yet!
+
+            currentCode = ""; //Reset spell code
+            return; //Return here to exit the function. Do this in order for the function not to check if the spell exists again, since the spell "" doesnt exist
+        }
+
+        //Check if the spell exists
+        Spell spellToCast = null;
+        foreach (var spell in allSpells)
+        {
+            if (spell.Code.Equals(spellCode))
             {
-                if (allSpells[i].Unlocked)
-                {
-                    allSpells[i].Activate(spellCode, GetClosestTarget(), player.transform); //Successful cast!
-                }
-                else
-                {
-                    popUpPrefabs[0].GetComponent<PopUpBehaviour>().PopUp(player.transform); //You don't know that yet!
-                }
+                spellToCast = spell;
+                break; //Spell exists
+            }
+        }
+
+        //If the spell doesn't exist, say it
+        if (spellToCast == null)
+        {
+            //UI representation
+            popUpPrefabs[3].SetActive(true);
+            popUpPrefabs[3].GetComponent<PopUpBehaviour>().PopUp(); //Spell doesn't exist!
+
+            currentCode = ""; //Reset spell code
+            return; //Return here to exit the function. Do this in order for the function not to check if the spell exists again, since the spell "" doesnt exist
+        }
+
+        if (!playerSpells.Contains(spellToCast))
+        {
+            //UI representation
+            popUpPrefabs[0].SetActive(true);
+            popUpPrefabs[0].GetComponent<PopUpBehaviour>().PopUp(); //You don't know that yet!
+
+            currentCode = ""; //Reset spell code
+            return; //Return here to exit the function. Do this in order for the function not to check if the spell exists again, since the spell "" doesnt exist
+        }
+
+        if (spellToCast.Equals(allSpells[1]) || spellToCast.Equals(allSpells[3]))
+        {
+            spellToCast.ActivateSelf(spellCode, player.transform); //Successful cast!
+
+            currentCode = ""; //Reset spell code
+            return; //Return here to exit the function. Do this in order for the function not to check if the spell exists again, since the spell "" doesnt exist
+        }
+        else
+        {
+            if (targets.Length < 1)
+            {
+                //UI representation
+                popUpPrefabs[11].SetActive(true);
+                popUpPrefabs[11].GetComponent<PopUpBehaviour>().PopUp(); //No target present!
+            }
+            else
+            {
+                spellToCast.ActivateEnemy(spellCode, GetClosestTarget(), player.transform); //Successful cast!
 
                 currentCode = ""; //Reset spell code
                 return; //Return here to exit the function. Do this in order for the function not to check if the spell exists again, since the spell "" doesnt exist
             }
-        }
-
-        //This is here for when we dont use the 4 digit combination that the player inputted
-        foreach (var spell in allSpells)
-        {
-            if (spell.Code != spellCode)
-            {
-                popUpPrefabs[3].GetComponent<PopUpBehaviour>().PopUp(player.transform); //Spell doesn't exist!
-            }
-
-            currentCode = ""; //Reset spell code
-            return; //Return here to exit the function
         }
     }
 
@@ -179,7 +240,7 @@ public class GameData : MonoBehaviour
                     }
                     else
                     {
-                        popUpPrefabs[4].GetComponent<PopUpBehaviour>().PopUp(player.transform); //Inventory full!
+                        popUpPrefabs[4].GetComponent<PopUpBehaviour>().PopUp(); //Inventory full!
                     }
                 }
 
@@ -188,26 +249,27 @@ public class GameData : MonoBehaviour
         }
     }
 
-    public void UnlockSpell(string spellName)
+    public void UnlockSpell(int spellInt)
     {
-        foreach (var spell in allSpells)
+        if (!allSpells[spellInt])
         {
-            if (!spell.SpellName.Equals(spellName))
-            {
-                popUpPrefabs[3].GetComponent<PopUpBehaviour>().PopUp(player.transform); //Spell doesn't exist!
-            }
-            else if (spell.SpellName.Equals(spellName) && spell.Unlocked.Equals(true))
-            {
-                popUpPrefabs[2].GetComponent<PopUpBehaviour>().PopUp(player.transform); //You already know that spell!
-            }
-            else if (spell.SpellName.Equals(spellName) && spell.Unlocked.Equals(false))
-            {
-                spell.Unlocked = true;
-                popUpPrefabs[1].GetComponent<PopUpBehaviour>().PopUp(player.transform); //Spell unlocked!
-            }
+            //UI representation
+            popUpPrefabs[3].SetActive(true);
+            popUpPrefabs[3].GetComponent<PopUpBehaviour>().PopUp(); //Spell doesn't exist!
+        }
+        else if (allSpells[spellInt] && playerSpells.Contains(allSpells[spellInt]))
+        {
+            //UI representation
+            popUpPrefabs[2].SetActive(true);
+            popUpPrefabs[2].GetComponent<PopUpBehaviour>().PopUp(); //You already know that spell!
+        }
+        else if (allSpells[spellInt] && !playerSpells.Contains(allSpells[spellInt]))
+        {
+            playerSpells.Add(allSpells[spellInt]);
 
-            currentCode = ""; //Reset spell code
-            return; //Return here to exit the function
+            //UI representation
+            popUpPrefabs[1].SetActive(true);
+            popUpPrefabs[1].GetComponent<PopUpBehaviour>().PopUp(); //Spell unlocked!
         }
     }
 }

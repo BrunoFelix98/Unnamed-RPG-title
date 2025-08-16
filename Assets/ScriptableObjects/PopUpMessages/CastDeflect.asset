@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c52a7298f0e866645908c1d0fc555d3c, type: 3}
   m_Name: CastDeflect
   m_EditorClassIdentifier: 
-  text: Deflected!
+  text: Deflect!

@@ -15,7 +15,10 @@ public class EnemyBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (enemyData.EnemyIsStunned)
+        {
+            StartCoroutine(StunTimer());
+        }
     }
 
     public void DealDamage(GameObject target)
@@ -36,9 +39,11 @@ public class EnemyBehaviour : MonoBehaviour
         if (enemyData.EnemyCurrentHitpoints - amount > 0)
         {
             enemyData.EnemyCurrentHitpoints -= amount;
+
+            //UI representation
             GameData.instance.popUpPrefabs[GameData.instance.allPopUpMessages.Length].GetComponent<PopUpBehaviour>().textBox.text = "-" + amount + "!";
             GameData.instance.popUpPrefabs[GameData.instance.allPopUpMessages.Length].GetComponent<PopUpBehaviour>().textBox.color = Color.red;
-            GameData.instance.popUpPrefabs[GameData.instance.allPopUpMessages.Length].GetComponent<PopUpBehaviour>().PopUp(enemyPosition);
+            GameData.instance.popUpPrefabs[GameData.instance.allPopUpMessages.Length].GetComponent<PopUpBehaviour>().PopUp();
         }
         else
         {
@@ -63,5 +68,11 @@ public class EnemyBehaviour : MonoBehaviour
                 }
             }
         }
+    }
+
+    IEnumerator StunTimer()
+    {
+        yield return new WaitForSeconds(2);
+        enemyData.EnemyIsStunned = false;
     }
 }

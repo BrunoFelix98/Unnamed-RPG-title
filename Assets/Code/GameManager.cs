@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        if (managerInstance.Equals(null))
+        if (managerInstance == null)
         {
             managerInstance = this;
         }
